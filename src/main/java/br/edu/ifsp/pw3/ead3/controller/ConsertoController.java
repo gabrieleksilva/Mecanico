@@ -51,7 +51,7 @@ public class ConsertoController {
     //http://localhost:8080/algunsDados
     @GetMapping("algunsDados")
     public Stream<DadosListagemConserto> listarAlgunsDados() {
-        return repository.findAll().stream().map(DadosListagemConserto::new);
+        return repository.findAllByAtivoTrue().stream().map(DadosListagemConserto::new);
     }
 
     @DeleteMapping("/{id}")
