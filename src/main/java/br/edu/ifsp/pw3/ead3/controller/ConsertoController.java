@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Stream;
@@ -51,5 +52,13 @@ public class ConsertoController {
     @GetMapping("algunsDados")
     public Stream<DadosListagemConserto> listarAlgunsDados() {
         return repository.findAll().stream().map(DadosListagemConserto::new);
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity excluir(@PathVariable Long id) {
+        Conserto conserto = repository.getReferenceById(id);
+        conserto.excluir();
+        return ResponseEntity.noContent().build();
     }
 }
