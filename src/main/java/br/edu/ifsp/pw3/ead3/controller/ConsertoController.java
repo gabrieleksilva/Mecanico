@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @RestController
@@ -52,6 +53,17 @@ public class ConsertoController {
     @GetMapping("algunsDados")
     public Stream<DadosListagemConserto> listarAlgunsDados() {
         return repository.findAllByAtivoTrue().stream().map(DadosListagemConserto::new);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Conserto> getMedicoById(@PathVariable Long id) {
+        Optional<Conserto> consertoOptional = repository.findById(id);
+        if (consertoOptional.isPresent()) {
+            Conserto conserto = consertoOptional.get();
+            return ResponseEntity.ok(conserto);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
