@@ -5,14 +5,12 @@ import br.edu.ifsp.pw3.ead3.repository.ConsertoRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("consertos")
@@ -50,13 +48,14 @@ public class ConsertoController {
     * */
     //http://localhost:8080/consertos?page=0&size=1
     @GetMapping
-    public Page<Conserto> listar(Pageable paginacao) {
-        return repository.findAll(paginacao);
+    public ResponseEntity listar(Pageable paginacao) {
+        return ResponseEntity.ok(repository.findAll(paginacao));
     }
     //http://localhost:8080/algunsDados
     @GetMapping("algunsDados")
-    public Stream<DadosListagemConserto> listarAlgunsDados() {
-        return repository.findAllByAtivoTrue().stream().map(DadosListagemConserto::new);
+    public ResponseEntity listarAlgunsDados() {
+        var pagina = repository.findAllByAtivoTrue().stream().map(DadosListagemConserto::new);
+        return ResponseEntity.ok(pagina);
     }
     @GetMapping("/{id}")
     public ResponseEntity getConsertoById(@PathVariable Long id) {
