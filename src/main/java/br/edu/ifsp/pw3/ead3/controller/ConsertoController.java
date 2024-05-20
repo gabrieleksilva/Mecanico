@@ -1,8 +1,6 @@
 package br.edu.ifsp.pw3.ead3.controller;
 
-import br.edu.ifsp.pw3.ead3.conserto.Conserto;
-import br.edu.ifsp.pw3.ead3.conserto.DadosConserto;
-import br.edu.ifsp.pw3.ead3.conserto.DadosListagemConserto;
+import br.edu.ifsp.pw3.ead3.conserto.*;
 import br.edu.ifsp.pw3.ead3.repository.ConsertoRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -11,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -23,8 +22,13 @@ public class ConsertoController {
     //http://localhost:8080/consertos
     @PostMapping
     @Transactional
-    public void cadastrar(@RequestBody @Valid DadosConserto dados){
-        repository.save(new Conserto(dados));
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosConserto dados,
+                          UriComponentsBuilder uriBuilder){
+        var conserto = new Conserto(dados);
+        repository.save(conserto);
+        var uri = uriBuilder.path("/consertos/{id}").buildAndExpand(conserto.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(new DadosDetalhamentoConserto(conserto));
     }
 
     //body para teste de cadastro
@@ -55,16 +59,34 @@ public class ConsertoController {
         return repository.findAllByAtivoTrue().stream().map(DadosListagemConserto::new);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Conserto> getMedicoById(@PathVariable Long id) {
+    public ResponseEntity getConsertoById(@PathVariable Long id) {
         Optional<Conserto> consertoOptional = repository.findById(id);
         if (consertoOptional.isPresent()) {
             Conserto conserto = consertoOptional.get();
-            return ResponseEntity.ok(conserto);
+            return ResponseEntity.ok(new DadosDetalhamentoConserto(conserto));
         }
         else {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoConserto dados) {
+        Conserto conserto = repository.getReferenceById( dados.id() );
+        conserto.atualizarInformacoes(dados);
+        return ResponseEntity.ok(new DadosDetalhamentoConserto(conserto));
+    }
+    /* body para teste de update
+    * {
+        "id": 7,
+        "dtSaida": "02/25/2021",
+        "dadosMecanico": {
+            "nome": "Rafael",
+            "experiencia": "25"
+        }
+      }
+    * */
 
     @DeleteMapping("/{id}")
     @Transactional
