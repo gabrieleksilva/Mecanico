@@ -60,13 +60,7 @@ public class ConsertoController {
     @GetMapping("/{id}")
     public ResponseEntity getConsertoById(@PathVariable Long id) {
         Optional<Conserto> consertoOptional = repository.findById(id);
-        if (consertoOptional.isPresent()) {
-            Conserto conserto = consertoOptional.get();
-            return ResponseEntity.ok(new DadosDetalhamentoConserto(conserto));
-        }
-        else {
-            return ResponseEntity.notFound().build();
-        }
+            return ResponseEntity.ok(new DadosDetalhamentoConserto(consertoOptional.get()));
     }
 
     @PutMapping
